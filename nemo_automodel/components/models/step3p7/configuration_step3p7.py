@@ -111,6 +111,7 @@ class Step3p7TextConfig(PretrainedConfig):
         moe_router_activation: str = "softmax",
         moe_router_scaling_factor: float = 1.0,
         need_fp32_gate: bool = False,
+        residual_in_fp32: bool = False,
         attention_other_setting: Optional[dict[str, Any]] = None,
         swiglu_limits: Optional[list[Optional[float]]] = None,
         swiglu_limits_shared: Optional[list[Optional[float]]] = None,
@@ -216,6 +217,7 @@ class Step3p7TextConfig(PretrainedConfig):
         self.moe_router_activation = moe_router_activation
         self.moe_router_scaling_factor = moe_router_scaling_factor
         self.need_fp32_gate = need_fp32_gate
+        self.residual_in_fp32 = residual_in_fp32
         self.attention_other_setting = attention_other_setting
         self.swiglu_limits = swiglu_limits
         self.swiglu_limits_shared = swiglu_limits_shared

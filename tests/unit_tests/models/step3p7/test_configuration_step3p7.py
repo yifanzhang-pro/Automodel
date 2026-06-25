@@ -62,6 +62,7 @@ def test_text_config_normalizes_layer_values_and_torch_dtype():
         use_rope_layers=[True],
         share_expert_dims=32,
         torch_dtype=torch.bfloat16,
+        residual_in_fp32=True,
     )
 
     assert config.layer_types == ["full_attention", "full_attention", "full_attention"]
@@ -74,7 +75,15 @@ def test_text_config_normalizes_layer_values_and_torch_dtype():
     assert config.rope_scaling["rope_type"] == "yarn"
     assert config.use_rope_layers == [True, True, True]
     assert config.share_expert_dim == 32
+    assert config.residual_in_fp32 is True
+    assert config.to_dict()["residual_in_fp32"] is True
     assert config.to_dict()["torch_dtype"] == "bfloat16"
+
+
+def test_text_config_residual_in_fp32_defaults_false():
+    config = Step3p7TextConfig()
+
+    assert config.residual_in_fp32 is False
 
 
 def test_text_config_preserves_explicit_mtp_base_layer_idx():

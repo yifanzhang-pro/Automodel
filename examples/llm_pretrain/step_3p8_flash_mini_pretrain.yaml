@@ -70,6 +70,7 @@ model:
     moe_router_activation: sigmoid
     moe_router_scaling_factor: 3.0
     need_fp32_gate: true
+    residual_in_fp32: true
     output_hidden_states: true
     tie_word_embeddings: false
     torch_dtype: bfloat16

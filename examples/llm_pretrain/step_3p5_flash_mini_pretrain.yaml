@@ -32,7 +32,7 @@ step_scheduler:
   ckpt_every_steps: 2000
   val_every_steps: 1000
   num_epochs: 1
-  max_steps: 10000
+  max_steps: 100000
 
 dist_env:
   backend: nccl

@@ -448,19 +448,19 @@ optimizer:
   epsilon: 1.0e-7
   nesterov: true
   adjust_lr: rms_norm
-  lr: 3.0e-3
+  lr: 1.5e-3
   weight_decay: 0.1
   scalar_opt: adamw
   scalar_betas: [0.9, 0.95]
   scalar_eps: 1e-5
-  scalar_lr: 3.0e-3
-  embed_lr: 3.0e-3
-  lm_head_lr: 3.0e-3
+  scalar_lr: 1.5e-3
+  embed_lr: 1.5e-3
+  lm_head_lr: 1.5e-3
 
 lr_scheduler:
   lr_decay_style: constant
   lr_warmup_steps: 2000
-  min_lr: 3.0e-3
+  min_lr: 1.5e-3
 
 ci:
   recipe_owner: hemildesai

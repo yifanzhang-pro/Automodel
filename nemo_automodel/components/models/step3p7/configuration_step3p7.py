@@ -261,6 +261,17 @@ class Step3p5TextConfig(Step3p7TextConfig):
         super().__init__(**kwargs)
 
 
+class Step3p8TextConfig(Step3p7TextConfig):
+    """Configuration for Step3p8-style causal language model backbones."""
+
+    model_type = "step3p8"
+
+    def __init__(self, **kwargs: Any) -> None:
+        kwargs.setdefault("architectures", ["Step3p5ForCausalLM"])
+        kwargs.setdefault("vocab_size", 131072)
+        super().__init__(**kwargs)
+
+
 def _normalize_per_layer_values(
     values: Optional[Sequence[Any]],
     num_hidden_layers: int,

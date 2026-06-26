@@ -21,6 +21,7 @@ from nemo_automodel.components.models.step3p7.configuration_step3p7 import (
     Step3p5VConfig,
     Step3p7Config,
     Step3p7TextConfig,
+    Step3p8TextConfig,
     StepRoboticsVisionEncoderConfig,
     _json_safe_value,
     _normalize_per_layer_values,
@@ -93,6 +94,15 @@ def test_step3p5_text_config_names_causallm_architecture():
     assert isinstance(config, Step3p7TextConfig)
     assert config.model_type == "step3p5"
     assert config.architectures == ["Step3p5ForCausalLM"]
+
+
+def test_step3p8_text_config_names_step3p8_model_type_and_vocab():
+    config = Step3p8TextConfig()
+
+    assert isinstance(config, Step3p7TextConfig)
+    assert config.model_type == "step3p8"
+    assert config.architectures == ["Step3p5ForCausalLM"]
+    assert config.vocab_size == 131072
 
 
 def test_text_config_preserves_explicit_mtp_base_layer_idx():

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import math
+from types import SimpleNamespace
 
 import pytest
 import torch.nn as nn
@@ -112,8 +113,33 @@ class TestSeparateParamGroups:
         # embed group
         assert groups[2]["algorithm"] == "adamw"
         assert groups[2]["weight_decay"] == 0.0
+        assert groups[2]["wd_mult"] == 0.0
         # lm_head group
         assert groups[3]["algorithm"] == "adamw"
+        assert groups[3]["weight_decay"] == 0.0
+        assert groups[3]["wd_mult"] == 0.0
+
+    def test_no_decay_groups_stay_zero_after_scheduler_step(self):
+        from nemo_automodel.components.optim.scheduler import OptimizerParamScheduler
+
+        model = TinyModel()
+        groups = self._call(model=model, base_lr=1e-3, scalar_opt="adamw", weight_decay=0.01)
+        OptimizerParamScheduler(
+            optimizer=SimpleNamespace(param_groups=groups),
+            init_lr=0.0,
+            max_lr=1e-3,
+            min_lr=1e-3,
+            lr_warmup_steps=0,
+            lr_decay_steps=1,
+            lr_decay_style="constant",
+            start_wd=0.1,
+            end_wd=0.1,
+            wd_incr_steps=1,
+            wd_incr_style="constant",
+        )
+
+        assert groups[1]["weight_decay"] == pytest.approx(0.1)
+        assert groups[2]["weight_decay"] == 0.0
         assert groups[3]["weight_decay"] == 0.0
 
     def test_no_lm_head(self):

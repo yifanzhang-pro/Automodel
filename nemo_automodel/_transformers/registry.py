@@ -284,6 +284,7 @@ _CUSTOM_CONFIG_REGISTRATIONS: Dict[str, Tuple[str, str]] = {
     "mimo_v2_flash": ("nemo_automodel.components.models.mimo_v2_flash.config", "MiMoV2FlashConfig"),
     "minimax_m3_vl": ("nemo_automodel.components.models.minimax_m3_vl.config", "MiniMaxM3VLConfig"),
     "mistral4": ("nemo_automodel.components.models.mistral4.configuration", "Mistral4Config"),
+    "step3p5": ("nemo_automodel.components.models.step3p7.configuration_step3p7", "Step3p5TextConfig"),
     "step3p5v": ("nemo_automodel.components.models.step3p7.configuration_step3p7", "Step3p5VConfig"),
     "step3p7": ("nemo_automodel.components.models.step3p7.configuration_step3p7", "Step3p7Config"),
     "step3p8": ("nemo_automodel.components.models.step3p7.configuration_step3p7", "Step3p8TextConfig"),

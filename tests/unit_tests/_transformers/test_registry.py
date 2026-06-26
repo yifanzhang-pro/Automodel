@@ -190,6 +190,10 @@ def test_step3p7_registry_and_custom_config_registration():
         "nemo_automodel.components.models.step3p7.configuration_step3p7",
         "Step3p5VConfig",
     )
+    assert _CUSTOM_CONFIG_REGISTRATIONS["step3p5"] == (
+        "nemo_automodel.components.models.step3p7.configuration_step3p7",
+        "Step3p5TextConfig",
+    )
     assert _CUSTOM_CONFIG_REGISTRATIONS["step3p7"] == (
         "nemo_automodel.components.models.step3p7.configuration_step3p7",
         "Step3p7Config",
@@ -198,6 +202,7 @@ def test_step3p7_registry_and_custom_config_registration():
         "nemo_automodel.components.models.step3p7.configuration_step3p7",
         "Step3p8TextConfig",
     )
+    assert CONFIG_MAPPING["step3p5"].__name__ == "Step3p5TextConfig"
     assert CONFIG_MAPPING["step3p5v"].__name__ == "Step3p5VConfig"
     assert CONFIG_MAPPING["step3p7"].__name__ == "Step3p7Config"
     assert CONFIG_MAPPING["step3p8"].__name__ == "Step3p8TextConfig"

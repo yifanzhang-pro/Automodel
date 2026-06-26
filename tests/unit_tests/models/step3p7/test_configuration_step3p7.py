@@ -17,6 +17,7 @@ from __future__ import annotations
 import torch
 
 from nemo_automodel.components.models.step3p7.configuration_step3p7 import (
+    Step3p5TextConfig,
     Step3p5VConfig,
     Step3p7Config,
     Step3p7TextConfig,
@@ -84,6 +85,14 @@ def test_text_config_residual_in_fp32_defaults_false():
     config = Step3p7TextConfig()
 
     assert config.residual_in_fp32 is False
+
+
+def test_step3p5_text_config_names_causallm_architecture():
+    config = Step3p5TextConfig()
+
+    assert isinstance(config, Step3p7TextConfig)
+    assert config.model_type == "step3p5"
+    assert config.architectures == ["Step3p5ForCausalLM"]
 
 
 def test_text_config_preserves_explicit_mtp_base_layer_idx():

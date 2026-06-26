@@ -174,6 +174,7 @@ class Block(nn.Module):
         self.post_attention_layernorm = Step3p5RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def _add_residual(self, residual: torch.Tensor, *updates: torch.Tensor) -> torch.Tensor:
+        output_dtype = residual.dtype
         if self.residual_in_fp32:
             residual = residual.to(torch.float32)
             updates = tuple(update.to(torch.float32) for update in updates)
@@ -181,6 +182,8 @@ class Block(nn.Module):
         output = residual
         for update in updates:
             output = output + update
+        if self.residual_in_fp32:
+            output = output.to(output_dtype)
         return output
 
     def forward(

@@ -221,12 +221,16 @@ class TestBlock:
         x = torch.randn(batch, seq, config.hidden_size).to(torch.bfloat16)
         freqs_cis = torch.randn(batch, seq, config.head_dim)
 
+        def mlp_forward(hidden_states):
+            assert hidden_states.dtype == x.dtype
+            return torch.zeros_like(hidden_states)
+
         with patch.object(block.self_attn, "forward", return_value=torch.zeros_like(x)):
-            with patch.object(block.mlp, "forward", return_value=torch.zeros_like(x)):
+            with patch.object(block.mlp, "forward", side_effect=mlp_forward):
                 out = block(x, freqs_cis=freqs_cis)
 
         assert out.shape == x.shape
-        assert out.dtype == torch.float32
+        assert out.dtype == x.dtype
 
     def test_forward_moe_shape_preserved(self, config, moe_config, sdpa_backend):
         sdpa_backend.fake_balanced_gate = True

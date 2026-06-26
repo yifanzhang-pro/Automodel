@@ -445,7 +445,7 @@ optimizer:
   _target_: nemo_automodel.components.optim.optimizer.MuonConfig
   # Matrix params in hidden layers use Muon; scalar/embed/lm_head params use AdamW fallback.
   betas: [0.9, 0.95]
-  epsilon: 1.0e-8
+  epsilon: 1.0e-7
   lr: 3.0e-3
   weight_decay: 0.1
   scalar_opt: adamw

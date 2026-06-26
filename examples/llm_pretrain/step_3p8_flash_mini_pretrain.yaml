@@ -442,11 +442,18 @@ validation_dataloader:
   dataloader_type: "single"
 
 optimizer:
-  _target_: torch.optim.AdamW
+  _target_: nemo_automodel.components.optim.optimizer.MuonConfig
+  # Matrix params in hidden layers use Muon; scalar/embed/lm_head params use AdamW fallback.
   betas: [0.9, 0.95]
-  eps: 1e-5
+  epsilon: 1.0e-8
   lr: 3.0e-3
   weight_decay: 0.1
+  scalar_opt: adamw
+  scalar_betas: [0.9, 0.95]
+  scalar_eps: 1e-5
+  scalar_lr: 3.0e-3
+  embed_lr: 3.0e-3
+  lm_head_lr: 3.0e-3
 
 lr_scheduler:
   lr_decay_style: constant

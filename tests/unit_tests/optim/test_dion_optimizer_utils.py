@@ -148,6 +148,38 @@ class TestSeparateParamGroups:
         assert groups[2]["weight_decay"] == 0.0
         assert groups[3]["weight_decay"] == 0.0
 
+    def test_scheduler_preserves_group_lr_ratios(self):
+        from nemo_automodel.components.optim.scheduler import OptimizerParamScheduler
+
+        model = TinyModel()
+        groups = self._call(
+            model=model,
+            base_lr=1e-3,
+            scalar_opt="adamw",
+            weight_decay=0.01,
+            scalar_lr=5e-4,
+            embed_lr=2e-4,
+            lm_head_lr=1e-4,
+        )
+
+        OptimizerParamScheduler(
+            optimizer=SimpleNamespace(param_groups=groups),
+            init_lr=0.0,
+            max_lr=1e-3,
+            min_lr=1e-3,
+            lr_warmup_steps=0,
+            lr_decay_steps=1,
+            lr_decay_style="constant",
+            start_wd=0.01,
+            end_wd=0.01,
+            wd_incr_steps=1,
+            wd_incr_style="constant",
+        )
+
+        assert groups[1]["lr"] == pytest.approx(5e-4)
+        assert groups[2]["lr"] == pytest.approx(2e-4)
+        assert groups[3]["lr"] == pytest.approx(1e-4)
+
     def test_no_lm_head(self):
         model = TinyModel(with_lm_head=False)
         groups = self._call(model=model, base_lr=1e-3, scalar_opt="adamw", weight_decay=0.01)

@@ -17,9 +17,11 @@ from __future__ import annotations
 import torch
 
 from nemo_automodel.components.models.step3p7.configuration_step3p7 import (
+    Step3p5TextConfig,
     Step3p5VConfig,
     Step3p7Config,
     Step3p7TextConfig,
+    Step3p8TextConfig,
     StepRoboticsVisionEncoderConfig,
     _json_safe_value,
     _normalize_per_layer_values,
@@ -62,6 +64,7 @@ def test_text_config_normalizes_layer_values_and_torch_dtype():
         use_rope_layers=[True],
         share_expert_dims=32,
         torch_dtype=torch.bfloat16,
+        residual_in_fp32=True,
     )
 
     assert config.layer_types == ["full_attention", "full_attention", "full_attention"]
@@ -74,7 +77,32 @@ def test_text_config_normalizes_layer_values_and_torch_dtype():
     assert config.rope_scaling["rope_type"] == "yarn"
     assert config.use_rope_layers == [True, True, True]
     assert config.share_expert_dim == 32
+    assert config.residual_in_fp32 is True
+    assert config.to_dict()["residual_in_fp32"] is True
     assert config.to_dict()["torch_dtype"] == "bfloat16"
+
+
+def test_text_config_residual_in_fp32_defaults_false():
+    config = Step3p7TextConfig()
+
+    assert config.residual_in_fp32 is False
+
+
+def test_step3p5_text_config_names_causallm_architecture():
+    config = Step3p5TextConfig()
+
+    assert isinstance(config, Step3p7TextConfig)
+    assert config.model_type == "step3p5"
+    assert config.architectures == ["Step3p5ForCausalLM"]
+
+
+def test_step3p8_text_config_names_step3p8_model_type_and_vocab():
+    config = Step3p8TextConfig()
+
+    assert isinstance(config, Step3p7TextConfig)
+    assert config.model_type == "step3p8"
+    assert config.architectures == ["Step3p5ForCausalLM"]
+    assert config.vocab_size == 131072
 
 
 def test_text_config_preserves_explicit_mtp_base_layer_idx():

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Pretraining config for a StepFun Step-3.5-Flash-style toy model.
+# Pretraining config for a StepFun Step-3.8-Flash-style mini model.
 #
-# The model shape follows SteptronOss playground/pretrain/step3p5/step3p5_toy.py:
+# The model shape follows the Step3.5 Flash mini recipe:
 # hidden_size=2048, num_layers=48, num_experts=128, expert_hidden_size=768,
 # shared_expert_dim=768, FFN hidden size=7168, and SWA pattern [SWA, SWA, SWA, full] x 12.
 #
@@ -46,14 +46,14 @@ rng:
 model:
   _target_: nemo_automodel.NeMoAutoModelForCausalLM.from_config
   config:
-    _target_: nemo_automodel.components.models.step3p7.configuration_step3p7.Step3p5TextConfig
+    _target_: nemo_automodel.components.models.step3p7.configuration_step3p7.Step3p8TextConfig
     hidden_size: 2048
     intermediate_size: 7168
     num_attention_heads: 16
     num_attention_groups: 2
     num_hidden_layers: 48
     max_seq_len: 131072
-    vocab_size: 128896
+    vocab_size: 131072
     rms_norm_eps: 1e-5
     moe_intermediate_size: 768
     moe_num_experts: 128
@@ -70,6 +70,7 @@ model:
     moe_router_activation: sigmoid
     moe_router_scaling_factor: 3.0
     need_fp32_gate: true
+    residual_in_fp32: true
     output_hidden_states: true
     tie_word_embeddings: false
     torch_dtype: bfloat16
@@ -374,7 +375,7 @@ model:
     attn: te
     linear: te
     rms_norm: torch_fp32
-    rope_fusion: true
+    rope_fusion: false
     experts: gmm
     dispatcher: deepep
     fake_balanced_gate: false
@@ -383,7 +384,7 @@ model:
 
 checkpoint:
   enabled: true
-  checkpoint_dir: checkpoints/step_3.5_flash_toy_pretrain/
+  checkpoint_dir: checkpoints/step_3.8_flash_mini_pretrain/
   model_save_format: torch_save
   save_consolidated: false
 
@@ -411,7 +412,7 @@ dataset:
   index_mapping_dir: /path/to/fineweb_edu/mapping_dir  # REPLACE THIS
   tokenizer:
     _target_: nemo_automodel._transformers.auto_tokenizer.NeMoAutoTokenizer.from_pretrained
-    pretrained_model_name_or_path: stepfun-ai/Step-3.5-Flash
+    pretrained_model_name_or_path: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16
     trust_remote_code: true
   seq_length: 4096
   split: "0.99, 0.01, 0.00"  # train, validation, test
@@ -428,7 +429,7 @@ validation_dataset:
   index_mapping_dir: /path/to/fineweb_edu/mapping_dir  # REPLACE THIS
   tokenizer:
     _target_: nemo_automodel._transformers.auto_tokenizer.NeMoAutoTokenizer.from_pretrained
-    pretrained_model_name_or_path: stepfun-ai/Step-3.5-Flash
+    pretrained_model_name_or_path: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16
     trust_remote_code: true
   seq_length: 4096
   split: "0.99, 0.01, 0.00"  # train, validation, test
@@ -441,11 +442,20 @@ validation_dataloader:
   dataloader_type: "single"
 
 optimizer:
-  _target_: torch.optim.AdamW
+  _target_: nemo_automodel.components.optim.optimizer.MuonConfig
+  # Matrix params in hidden layers use Muon; scalar/embed/lm_head params use AdamW fallback.
   betas: [0.9, 0.95]
-  eps: 1e-5
+  epsilon: 1.0e-7
+  nesterov: true
+  adjust_lr: rms_norm
   lr: 1.5e-3
   weight_decay: 0.1
+  scalar_opt: adamw
+  scalar_betas: [0.9, 0.95]
+  scalar_eps: 1e-5
+  scalar_lr: 1.5e-3
+  embed_lr: 1.5e-3
+  lm_head_lr: 1.5e-3
 
 lr_scheduler:
   lr_decay_style: constant

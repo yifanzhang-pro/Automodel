@@ -23,6 +23,7 @@ import torch.nn as nn
 from nemo_automodel.components.models.common import BackendConfig
 from nemo_automodel.components.models.step3p5.layers import Step3p5Attention, Step3p5RotaryEmbedding
 from nemo_automodel.components.models.step3p5.model import (
+    Block,
     Step3p5Model,
     _keep_step_router_bias_fp32,
     parse_moe_layers_enum,
@@ -118,6 +119,19 @@ def test_rotary_embedding_apply_recomputes_inv_freq_on_target_device():
     assert result is rotary
     assert rotary.inv_freq.dtype == torch.float32
     torch.testing.assert_close(rotary.inv_freq, old_inv_freq)
+
+
+def test_residual_in_fp32_returns_compute_dtype_after_accumulation():
+    block = Block.__new__(Block)
+    block.residual_in_fp32 = True
+
+    residual = torch.ones(2, 3, dtype=torch.bfloat16)
+    update = torch.full_like(residual, 0.5)
+
+    out = Block._add_residual(block, residual, update)
+
+    assert out.dtype == residual.dtype
+    torch.testing.assert_close(out.float(), residual.float() + update.float())
 
 
 def test_attention_accepts_position_ids_instead_of_freqs_and_errors_without_either():

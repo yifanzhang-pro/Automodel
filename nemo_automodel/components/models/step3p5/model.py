@@ -86,6 +86,7 @@ class Block(nn.Module):
         super().__init__()
         self.layer_idx = layer_idx
         self.config = config
+        self.residual_in_fp32 = getattr(config, "residual_in_fp32", False)
 
         # Handle need_fp32_gate config for MoE gate precision
         if getattr(config, "need_fp32_gate", False) and backend.gate_precision is None:
@@ -172,6 +173,18 @@ class Block(nn.Module):
         self.input_layernorm = Step3p5RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = Step3p5RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
+    def _add_residual(self, residual: torch.Tensor, *updates: torch.Tensor) -> torch.Tensor:
+        if self.residual_in_fp32:
+            output = residual.to(torch.float32)
+            for update in updates:
+                output = output + update.to(torch.float32)
+            return output.to(residual.dtype)
+
+        output = residual
+        for update in updates:
+            output = output + update
+        return output
+
     def forward(
         self,
         x: torch.Tensor,
@@ -195,7 +208,7 @@ class Block(nn.Module):
             position_ids=position_ids,
             **attn_kwargs,
         )
-        x = residual + attn_out
+        x = self._add_residual(residual, attn_out)
 
         # FFN (MLP or MoE + shared expert)
         residual = x
@@ -204,10 +217,10 @@ class Block(nn.Module):
         if self.is_moe_layer:
             share_out = self.share_expert(x)
             moe_out = self.moe(x, padding_mask)
-            x = residual + share_out + moe_out
+            x = self._add_residual(residual, share_out, moe_out)
         else:
             mlp_out = self.mlp(x)
-            x = residual + mlp_out
+            x = self._add_residual(residual, mlp_out)
 
         return x
 

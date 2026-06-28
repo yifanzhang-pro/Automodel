@@ -123,7 +123,14 @@ def _separate_param_groups(
             weight_decay=weight_decay,
             **scalar_kwargs,
         ),
-        dict(params=embed_params, algorithm=scalar_opt, lr=effective_embed_lr, weight_decay=0.0, **scalar_kwargs),
+        dict(
+            params=embed_params,
+            algorithm=scalar_opt,
+            lr=effective_embed_lr,
+            weight_decay=0.0,
+            wd_mult=0.0,
+            **scalar_kwargs,
+        ),
     ]
 
     if lm_head_params:
@@ -136,7 +143,12 @@ def _separate_param_groups(
             effective_lm_head_lr = base_lr / math.sqrt(float(d_in))
         param_groups.append(
             dict(
-                params=lm_head_params, algorithm=scalar_opt, lr=effective_lm_head_lr, weight_decay=0.0, **scalar_kwargs
+                params=lm_head_params,
+                algorithm=scalar_opt,
+                lr=effective_lm_head_lr,
+                weight_decay=0.0,
+                wd_mult=0.0,
+                **scalar_kwargs,
             )
         )
 

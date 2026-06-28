@@ -111,6 +111,7 @@ class Step3p7TextConfig(PretrainedConfig):
         moe_router_activation: str = "softmax",
         moe_router_scaling_factor: float = 1.0,
         need_fp32_gate: bool = False,
+        residual_in_fp32: bool = False,
         attention_other_setting: Optional[dict[str, Any]] = None,
         swiglu_limits: Optional[list[Optional[float]]] = None,
         swiglu_limits_shared: Optional[list[Optional[float]]] = None,
@@ -216,6 +217,7 @@ class Step3p7TextConfig(PretrainedConfig):
         self.moe_router_activation = moe_router_activation
         self.moe_router_scaling_factor = moe_router_scaling_factor
         self.need_fp32_gate = need_fp32_gate
+        self.residual_in_fp32 = residual_in_fp32
         self.attention_other_setting = attention_other_setting
         self.swiglu_limits = swiglu_limits
         self.swiglu_limits_shared = swiglu_limits_shared
@@ -249,6 +251,25 @@ class Step3p7TextConfig(PretrainedConfig):
         if torch_dtype is not None:
             output["torch_dtype"] = _json_safe_value(torch_dtype)
         return output
+
+
+class Step3p5TextConfig(Step3p7TextConfig):
+    """Configuration for Step3p5-style causal language model backbones."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        kwargs.setdefault("architectures", ["Step3p5ForCausalLM"])
+        super().__init__(**kwargs)
+
+
+class Step3p8TextConfig(Step3p7TextConfig):
+    """Configuration for Step3p8-style causal language model backbones."""
+
+    model_type = "step3p8"
+
+    def __init__(self, **kwargs: Any) -> None:
+        kwargs.setdefault("architectures", ["Step3p5ForCausalLM"])
+        kwargs.setdefault("vocab_size", 131072)
+        super().__init__(**kwargs)
 
 
 def _normalize_per_layer_values(

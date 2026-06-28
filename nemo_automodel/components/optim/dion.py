@@ -112,12 +112,16 @@ def _separate_param_groups(
     effective_scalar_lr = scalar_lr if scalar_lr is not None else base_lr
     effective_embed_lr = embed_lr if embed_lr is not None else effective_scalar_lr
 
+    def lr_mult(group_lr: float) -> float:
+        return float(group_lr) / float(base_lr)
+
     param_groups: list[dict[str, Any]] = [
         dict(params=matrix_params),
         dict(
             params=vector_params,
             algorithm=scalar_opt,
             lr=effective_scalar_lr,
+            lr_mult=lr_mult(effective_scalar_lr),
             weight_decay=weight_decay,
             **scalar_kwargs,
         ),
@@ -125,6 +129,7 @@ def _separate_param_groups(
             params=embed_params,
             algorithm=scalar_opt,
             lr=effective_embed_lr,
+            lr_mult=lr_mult(effective_embed_lr),
             weight_decay=0.0,
             wd_mult=0.0,
             **scalar_kwargs,
@@ -144,6 +149,7 @@ def _separate_param_groups(
                 params=lm_head_params,
                 algorithm=scalar_opt,
                 lr=effective_lm_head_lr,
+                lr_mult=lr_mult(effective_lm_head_lr),
                 weight_decay=0.0,
                 wd_mult=0.0,
                 **scalar_kwargs,

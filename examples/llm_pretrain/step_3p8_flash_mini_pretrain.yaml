@@ -375,7 +375,7 @@ model:
     attn: te
     linear: te
     rms_norm: torch_fp32
-    rope_fusion: true
+    rope_fusion: false
     experts: gmm
     dispatcher: deepep
     fake_balanced_gate: false
